@@ -1,0 +1,49 @@
+===============================================================================
+                  TUTORIAL VIM - BAHASA INDONESIA (BAGIAN 2)
+                            EDITING TEKS DASAR
+===============================================================================
+
+PELAJARAN 2: EDITING TEKS
+
+2.1 MENGHAPUS KARAKTER:
+   Letakkan kursor di atas karakter yang ingin dihapus
+   Tekan x untuk menghapus karakter di bawah kursor
+
+   Coba hapus beberapa karakter di kata berikut:
+   Haaappppyyy Coding!
+
+2.2 MENAMBAH TEKS:
+   a - tambah teks SETELAH kursor (append)
+   A - tambah teks di AKHIR baris
+
+   i - insert teks SEBELUM kursor
+   I - insert teks di AWAL baris
+
+   o - buat baris BARU di bawah
+   O - buat baris BARU di atas
+
+2.3 LATIHAN EDITING:
+   Baris: [Edit saya]
+
+   Letakkan kursor di antara kurung siku
+   Tekan i dan ketik "teks contoh"
+   Tekan ESC
+
+   Hasil: [teks contoh]
+
+2.4 MENYIMPAN FILE:
+   :w - simpan file (write)
+   :wq - simpan dan keluar
+
+   Coba:
+   1. Edit teks di bawah
+   2. Ketik :w namafile.txt
+   3. Tekan ENTER
+
+   [Area latihan editing]
+
+PERINTAH PENTING:
+   u - undo (batalkan perubahan terakhir)
+   Ctrl + r - redo (kembalikan perubahan)
+
+===============================================================================

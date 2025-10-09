@@ -1,0 +1,37 @@
+===============================================================================
+                  TUTORIAL VIM - BAHASA INDONESIA (BAGIAN 3)
+                            GERAKAN LANJUT
+===============================================================================
+
+PELAJARAN 3: GERAKAN EFISIEN
+
+3.1 GERAKAN PER KATA:
+   w - maju ke AWAL kata berikutnya
+   b - mundur ke AWAL kata sebelumnya
+   e - maju ke AKHIR kata berikutnya
+
+   Coba praktikkan:
+   "Ini adalah kalimat contoh untuk latihan gerakan kata"
+
+3.2 GERAKAN DALAM BARIS:
+   0 - pindah ke AWAL baris
+   $ - pindah ke AKHIR baris
+   ^ - pindah ke karakter pertama bukan spasi
+
+3.3 GERAKAN ANTAR BARIS:
+   gg - pindah ke BARIS PERTAMA file
+   G - pindah ke BARIS TERAKHIR file
+   50G - pindah ke baris ke-50
+   :50 - pindah ke baris ke-50 (alternatif)
+
+3.4 SCROLLING:
+   Ctrl + f - scroll satu layar ke depan
+   Ctrl + b - scroll satu layar ke belakang
+   Ctrl + d - scroll setengah layar ke bawah
+   Ctrl + u - scroll setengah layar ke atas
+
+LATIHAN GERAKAN:
+   Gunakan perintah di atas untuk bernavigasi dalam file ini
+   Coba pindah ke baris pertama, terakhir, dan baris tertentu
+
+===============================================================================

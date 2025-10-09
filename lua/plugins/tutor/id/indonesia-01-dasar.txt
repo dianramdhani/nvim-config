@@ -1,0 +1,42 @@
+===============================================================================
+                  TUTORIAL VIM - BAHASA INDONESIA (BAGIAN 1)
+                              PELAJARAN DASAR
+===============================================================================
+
+SELAMAT DATANG DI TUTORIAL VIM BAHASA INDONESIA!
+
+Tutorial ini akan mengajarkan Anda cara menggunakan Vim/Neovim dengan efektif.
+Lakukan langkah-langkah berikut dengan sabar dan konsisten.
+
+PETUNJUK UMUM:
+1. Gunakan tombol panah atau h,j,k,l untuk bergerak
+2. Tekan ENTER untuk melanjutkan ke pelajaran berikutnya
+3. Ketik :q! dan ENTER untuk keluar kapan saja
+
+PELAJARAN 1: GERAKAN DASAR
+
+1.1 GERAKAN KURSOR:
+   h ← (kiri)      j ↓ (bawah)      k ↑ (atas)      l → (kanan)
+
+  Coba gerakkan kursor mengelilingi tanda ---> <---
+
+  ---> <---
+
+1.2 KELUAR DARI VIM:
+   Tekan tombol ESC (sangat penting!)
+   Ketik :q! dan tekan ENTER
+
+   Catatan: :q! berarti keluar tanpa menyimpan
+
+1.3 MENGAKTIFKAN MODE INSERT:
+   Tekan i untuk masuk ke Mode Insert
+   Ketik beberapa kata
+   Tekan ESC untuk kembali ke Normal Mode
+
+LATIHAN:
+1. Gerakkan kursor ke baris berikutnya
+2. Tekan i dan ketik "Halo Vim"
+3. Tekan ESC
+4. Ketik :q! untuk keluar
+
+===============================================================================

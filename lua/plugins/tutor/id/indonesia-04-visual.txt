@@ -1,0 +1,47 @@
+===============================================================================
+                  TUTORIAL VIM - BAHASA INDONESIA (BAGIAN 4)
+                            MODE VISUAL
+===============================================================================
+
+PELAJARAN 4: SELEKSI TEKS
+
+4.1 MODE VISUAL:
+   v - Mode Visual karakter (character-wise)
+   V - Mode Visual baris (line-wise)
+   Ctrl + v - Mode Visual blok (block-wise)
+
+4.2 SELEKSI DASAR:
+   1. Tekan v untuk masuk Visual Mode
+   2. Gerakkan kursor untuk menyeleksi teks
+   3. Lakukan operasi:
+      y - salin (yank)
+      d - hapus (delete)
+      c - ubah (change)
+
+   Coba seleksi beberapa kata di teks berikut:
+   "Ini adalah teks contoh untuk latihan seleksi visual"
+
+4.3 OPERASI VISUAL:
+   y - salin teks terpilih (yank)
+   d - hapus teks terpilih (delete)
+   c - ganti teks terpilih (change)
+   p - tempel teks yang disalin (paste)
+
+4.4 VISUAL BLOK:
+   Ctrl + v - untuk seleksi blok persegi
+   Sangat berguna untuk editing kolom
+
+   Contoh:
+   Apple     1000
+   Banana    2000
+   Cherry    3000
+
+   Seleksi kolom angka dengan Ctrl+v dan ubah nilainya
+
+LATIHAN:
+   1. Seleksi satu baris dengan V
+   2. Salin dengan y
+   3. Pindah ke baris kosong
+   4. Tempel dengan p
+
+===============================================================================
