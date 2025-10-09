@@ -37,6 +37,24 @@ return {
     end,
   },
 
+  {
+    "williamboman/mason.nvim",
+    opts = {
+      ensure_installed = {
+        "typescript-language-server",
+        "html-lsp",
+        "css-lsp",
+        "css-variables-language-server",
+        "tailwindcss-language-server",
+        "eslint-lsp",
+        "prettierd",
+        "json-lsp",
+        "lua-language-server",
+        "stylelint-lsp",
+      },
+    },
+  },
+
   -- test new blink
   -- { import = "nvchad.blink.lazyspec" },
 
