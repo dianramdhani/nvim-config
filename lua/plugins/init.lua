@@ -29,6 +29,55 @@ return {
     opts = require "configs.conform",
   },
 
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = {
+      diff_opts = {
+        vertical = false,
+      },
+    },
+  },
+
+  {
+    "nvim-telescope/telescope.nvim",
+    opts = function(_, opts)
+      local actions = require "telescope.actions"
+      opts.pickers = opts.pickers or {}
+      opts.pickers.git_status = {
+        layout_strategy = "vertical",
+        layout_config = {
+          width = 0.95,
+          height = 0.95,
+          prompt_position = "top",
+          mirror = true,
+          preview_cutoff = 0,
+          preview_height = 0.67, -- 2/3 layar untuk preview diff
+        },
+        mappings = {
+          i = {
+            ["<PageDown>"] = actions.preview_scrolling_down,
+            ["<PageUp>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-f>"] = actions.preview_scrolling_down,
+            ["<C-b>"] = actions.preview_scrolling_up,
+          },
+          n = {
+            ["J"] = actions.preview_scrolling_down,
+            ["K"] = actions.preview_scrolling_up,
+            ["<PageDown>"] = actions.preview_scrolling_down,
+            ["<PageUp>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-f>"] = actions.preview_scrolling_down,
+            ["<C-b>"] = actions.preview_scrolling_up,
+          },
+        },
+      }
+      return opts
+    end,
+  },
+
   -- These are some examples, uncomment them if you want to see them work!
   {
     "neovim/nvim-lspconfig",
