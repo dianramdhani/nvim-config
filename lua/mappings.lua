@@ -41,21 +41,19 @@ map("n", "<leader>gt", function()
   }
 end, { desc = "Telescope git status (preview bawah 2/3 & scrollable)" })
 
--- Dialog floating untuk path reference (HANYA teks path agar mudah di-copy di HP)
+-- Dialog floating untuk path reference (Full width, border none agar bersih di-copy di HP tanpa karakter border)
 local function show_path_dialog(text)
-  local max_w = math.max(vim.o.columns - 4, 20)
-  local width = math.min(math.max(#text + 4, 28), max_w)
-  local needed_lines = math.ceil(#text / math.max(width - 2, 1))
-  local height = math.max(needed_lines, 1)
-  local row = math.max(math.floor((vim.o.lines - height) / 2) - 1, 1)
-  local col = math.max(math.floor((vim.o.columns - width) / 2), 1)
+  local width = vim.o.columns
+  local needed_lines = math.max(math.ceil(#text / width), 1)
+  local height = needed_lines
+  local row = math.max(math.floor((vim.o.lines - height) / 2), 0)
 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.bo[buf].buftype = "nofile"
   vim.bo[buf].bufhidden = "wipe"
   vim.bo[buf].swapfile = false
 
-  -- HANYA isi teks path itu saja (tanpa baris kosong, tanpa padding teks tambahan)
+  -- HANYA isi teks path itu saja (tanpa baris kosong, tanpa padding, tanpa karakter border)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, { text })
   vim.bo[buf].modifiable = false
 
@@ -64,14 +62,13 @@ local function show_path_dialog(text)
     width = width,
     height = height,
     row = row,
-    col = col,
+    col = 0,
     style = "minimal",
-    border = "rounded",
-    title = " Path (ESC to close) ",
-    title_pos = "center",
+    border = "none",
   })
 
   vim.wo[win].wrap = true
+  vim.wo[win].winhighlight = "Normal:Pmenu,NormalFloat:Pmenu"
 
   -- Salin otomatis ke clipboard sistem (+) dan default (")
   pcall(vim.fn.setreg, "+", text)
