@@ -41,12 +41,12 @@ map("n", "<leader>gt", function()
   }
 end, { desc = "Telescope git status (preview bawah 2/3 & scrollable)" })
 
--- Dialog floating untuk path reference (GitHub line anchor format)
+-- Dialog floating untuk path reference (HANYA teks path agar mudah di-copy di HP)
 local function show_path_dialog(text)
   local max_w = math.max(vim.o.columns - 4, 20)
-  local width = math.min(math.max(#text + 6, 32), max_w)
-  local needed_lines = math.ceil((#text + 4) / math.max(width - 4, 1))
-  local height = math.min(needed_lines + 2, math.floor(vim.o.lines * 0.7))
+  local width = math.min(math.max(#text + 4, 28), max_w)
+  local needed_lines = math.ceil(#text / math.max(width - 2, 1))
+  local height = math.max(needed_lines, 1)
   local row = math.max(math.floor((vim.o.lines - height) / 2) - 1, 1)
   local col = math.max(math.floor((vim.o.columns - width) / 2), 1)
 
@@ -55,7 +55,8 @@ local function show_path_dialog(text)
   vim.bo[buf].bufhidden = "wipe"
   vim.bo[buf].swapfile = false
 
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "", "  " .. text, "" })
+  -- HANYA isi teks path itu saja (tanpa baris kosong, tanpa padding teks tambahan)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { text })
   vim.bo[buf].modifiable = false
 
   local win = vim.api.nvim_open_win(buf, true, {
@@ -66,18 +67,15 @@ local function show_path_dialog(text)
     col = col,
     style = "minimal",
     border = "rounded",
-    title = " 📋 Path Reference ",
+    title = " Path (ESC to close) ",
     title_pos = "center",
-    footer = " [ESC/q] Close  [y] Copy ",
-    footer_pos = "center",
   })
 
   vim.wo[win].wrap = true
-  vim.wo[win].linebreak = true
 
   -- Salin otomatis ke clipboard sistem (+) dan default (")
-  vim.fn.setreg("+", text)
-  vim.fn.setreg('"', text)
+  pcall(vim.fn.setreg, "+", text)
+  pcall(vim.fn.setreg, '"', text)
 
   local close = function()
     if vim.api.nvim_win_is_valid(win) then
@@ -88,55 +86,37 @@ local function show_path_dialog(text)
   vim.keymap.set("n", "<Esc>", close, { buffer = buf, nowait = true })
   vim.keymap.set("n", "q", close, { buffer = buf, nowait = true })
   vim.keymap.set("n", "<CR>", close, { buffer = buf, nowait = true })
-  vim.keymap.set("n", "y", function()
-    vim.fn.setreg("+", text)
-    vim.fn.setreg('"', text)
-    vim.notify("Copied to clipboard: " .. text, vim.log.levels.INFO)
-  end, { buffer = buf, nowait = true })
-
-  -- Kursor di baris teks agar mudah diselect manual di HP
-  vim.api.nvim_win_set_cursor(win, { 2, 2 })
 end
 
-local function copy_file_reference(is_visual)
+local function execute_copy_path(line1, line2)
   local file = vim.api.nvim_buf_get_name(0)
   if file == "" then
-    vim.notify("Buffer tidak memiliki file", vim.log.levels.WARN)
+    vim.notify("Buffer ini belum disimpan sebagai file", vim.log.levels.WARN)
     return
   end
 
   local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
   local rel_path = vim.fs.relpath(root, file) or vim.fn.fnamemodify(file, ":.")
 
-  local start_line, end_line
-  if is_visual then
-    start_line = vim.fn.line "'<"
-    end_line = vim.fn.line "'>"
-    if start_line > end_line then
-      start_line, end_line = end_line, start_line
-    end
-  else
-    start_line = vim.fn.line "."
-    end_line = start_line
+  local s = line1 or vim.fn.line "."
+  local e = line2 or s
+  if s > e then
+    s, e = e, s
   end
 
-  local line_ref
-  if start_line == end_line then
-    line_ref = string.format("#L%d", start_line)
-  else
-    line_ref = string.format("#L%d-L%d", start_line, end_line)
-  end
-
+  local line_ref = (s == e) and string.format("#L%d", s) or string.format("#L%d-L%d", s, e)
   show_path_dialog(rel_path .. line_ref)
 end
 
--- Normal mode: baris saat ini
-map("n", "<leader>cp", function()
-  copy_file_reference(false)
-end, { desc = "Show relative path reference dialog" })
+-- Command :CopyPath dan :CP (bisa dipanggil langsung dari command line atau visual range)
+vim.api.nvim_create_user_command("CopyPath", function(opts)
+  execute_copy_path(opts.line1, opts.line2)
+end, { range = true, desc = "Show path reference dialog" })
 
--- Visual mode (x): keluar visual mode dulu dengan <Esc> lalu buka dialog
-map("x", "<leader>cp", function()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "x", false)
-  copy_file_reference(true)
-end, { desc = "Show relative path reference dialog" })
+vim.api.nvim_create_user_command("CP", function(opts)
+  execute_copy_path(opts.line1, opts.line2)
+end, { range = true, desc = "Show path reference dialog" })
+
+-- Keymap shortcut <leader>cp
+map("n", "<leader>cp", "<cmd>CopyPath<CR>", { desc = "Show path reference dialog" })
+map("x", "<leader>cp", ":CopyPath<CR>", { desc = "Show path reference dialog" })
