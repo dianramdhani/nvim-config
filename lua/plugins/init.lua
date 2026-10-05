@@ -25,7 +25,7 @@ end, { desc = "Lihat daftar tutorial Indonesia" })
 return {
   {
     "stevearc/conform.nvim",
-    -- event = 'BufWritePre', -- uncomment for format on save
+    event = "BufWritePre", -- format on save
     opts = require "configs.conform",
   },
 
@@ -96,7 +96,9 @@ return {
         "css-variables-language-server",
         "tailwindcss-language-server",
         "eslint-lsp",
+        "prettier",
         "prettierd",
+        "stylua",
         "json-lsp",
         "lua-language-server",
         "stylelint-lsp",
