@@ -117,3 +117,23 @@ end, { range = true, desc = "Show path reference dialog" })
 -- Keymap shortcut <leader>cp
 map("n", "<leader>cp", "<cmd>CopyPath<CR>", { desc = "Show path reference dialog" })
 map("x", "<leader>cp", ":CopyPath<CR>", { desc = "Show path reference dialog" })
+
+local function reload_ui_config()
+  package.loaded.chadrc = nil
+  package.loaded.nvconfig = nil
+  package.loaded.base46 = nil
+
+  local config = require "nvconfig"
+  require("base46").load_all_highlights()
+
+  local statusline = config.ui.statusline
+  package.loaded["nvchad.stl." .. statusline.theme] = nil
+  vim.o.statusline = "%!v:lua.require('nvchad.stl." .. statusline.theme .. "')()"
+  vim.cmd "redrawstatus"
+  vim.notify("Neovim UI config reloaded", vim.log.levels.INFO)
+end
+
+vim.api.nvim_create_user_command("ReloadUI", reload_ui_config, {
+  desc = "Reload theme and statusline config",
+})
+map("n", "<leader>rr", reload_ui_config, { desc = "Reload UI config" })
