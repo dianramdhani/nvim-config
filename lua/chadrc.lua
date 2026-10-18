@@ -20,6 +20,35 @@ M.ui = {
 		separator_style = "round",
 		order = { "mode", "file", "git", "%=", "diagnostics", "cursor" },
 		modules = {
+			git = function()
+				local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0)
+				local root = vim.fs.root(bufnr, { ".git" })
+				if not root then
+					return ""
+				end
+
+				local git_dir = root .. "/.git"
+				local stat = vim.uv.fs_stat(git_dir)
+				if stat and stat.type == "file" then
+					local gitdir = vim.fn.readfile(git_dir)[1]
+					gitdir = gitdir and gitdir:match("^gitdir:%s*(.+)$")
+					if not gitdir then
+						return ""
+					end
+					if not vim.fs.is_absolute(gitdir) then
+						gitdir = root .. "/" .. gitdir
+					end
+					git_dir = vim.fs.normalize(gitdir)
+				end
+
+				local head = vim.fn.readfile(git_dir .. "/HEAD")[1]
+				if not head then
+					return ""
+				end
+
+				local branch = head:match("^ref: refs/heads/(.+)$") or head:sub(1, 7)
+				return "%#St_gitIcons#  " .. branch .. " "
+			end,
 			mode = function()
 				local mode = vim.api.nvim_get_mode().mode
 				local modes = require("nvchad.stl.utils").modes
