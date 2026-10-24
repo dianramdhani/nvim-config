@@ -13,8 +13,32 @@ map("i", "jk", "<ESC>")
 map("n", "<leader>gd", "<cmd>Gitsigns diffthis<CR>", { desc = "Git diff unstaged (atas-bawah)" })
 map("n", "<leader>gD", "<cmd>Gitsigns diffthis HEAD<CR>", { desc = "Git diff staged HEAD (atas-bawah)" })
 map("n", "<leader>gp", "<cmd>Gitsigns preview_hunk<CR>", { desc = "Git preview hunk popup" })
+map("n", "<leader>ga", function()
+  local file = vim.api.nvim_buf_get_name(0)
+  if file == "" then
+    vim.notify("Buffer ini belum memiliki file", vim.log.levels.WARN)
+    return
+  end
+
+  local root = vim.fs.root(file, ".git")
+  if not root then
+    vim.notify("File ini tidak berada di dalam repository Git", vim.log.levels.WARN)
+    return
+  end
+
+  local directory = vim.fs.dirname(file)
+  local relative_directory = vim.fs.relpath(root, directory) or "."
+  local result = vim.system({ "git", "add", "--", relative_directory .. "/" }, { cwd = root }):wait()
+
+  if result.code == 0 then
+    vim.notify("Git add: " .. relative_directory .. "/", vim.log.levels.INFO)
+  else
+    vim.notify(result.stderr ~= "" and result.stderr or "git add gagal", vim.log.levels.ERROR)
+  end
+end, { desc = "Git add current file directory" })
 map("n", "<leader>gt", function()
   local actions = require "telescope.actions"
+  local make_git_status_entry = require("telescope.make_entry").gen_from_git_status({ cwd = vim.fn.getcwd() })
   require("telescope.builtin").git_status {
     layout_strategy = "vertical",
     layout_config = {
@@ -25,6 +49,12 @@ map("n", "<leader>gt", function()
       preview_cutoff = 0,
       preview_height = 0.67, -- 2/3 layar untuk preview diff
     },
+    entry_maker = function(entry)
+      local git_entry = make_git_status_entry(entry)
+      if git_entry and git_entry.status:sub(2, 2) ~= " " then
+        return git_entry
+      end
+    end,
     attach_mappings = function(_, map_inner)
       -- Scroll preview di insert mode & normal mode
       map_inner({ "i", "n" }, "<PageDown>", actions.preview_scrolling_down)
