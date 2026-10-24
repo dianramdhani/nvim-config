@@ -3,6 +3,7 @@ require "nvchad.mappings"
 -- add yours here
 
 local map = vim.keymap.set
+map("n", "<leader>th", "<cmd>Telescope themes<CR>", { desc = "telescope nvchad themes" })
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
@@ -70,6 +71,153 @@ map("n", "<leader>gt", function()
     end,
   }
 end, { desc = "Telescope git status (preview bawah 2/3 & scrollable)" })
+local function choose_commit(on_select)
+  local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
+  local entries = {}
+  for _, line in ipairs(vim.fn.systemlist({ "git", "-C", root, "log", "--format=%H%x09%cr%x09%s" })) do
+    local sha, time, message = line:match("^(%x+)\t([^\t]+)\t(.*)$")
+    if sha then
+      local label = message .. " · " .. time
+      entries[#entries + 1] = { value = sha, msg = message, display = label, ordinal = label }
+    end
+  end
+
+  local actions = require "telescope.actions"
+  local action_state = require "telescope.actions.state"
+  local conf = require("telescope.config").values
+  require("telescope.pickers").new({}, {
+    prompt_title = "Choose commit to audit",
+    finder = require("telescope.finders").new_table {
+      results = entries,
+      entry_maker = function(entry)
+        return entry
+      end,
+    },
+    sorter = conf.generic_sorter({}),
+    attach_mappings = function(prompt_bufnr, map_picker)
+      local show_files = function()
+        local commit = action_state.get_selected_entry()
+        if not commit then
+          return
+        end
+        actions.close(prompt_bufnr)
+        local files = vim.fn.systemlist({ "git", "-C", root, "show", "--format=", "--name-only", "--first-parent", commit.value })
+        on_select(commit, root, files)
+      end
+      map_picker("i", "<CR>", show_files)
+      map_picker("n", "<CR>", show_files)
+      return true
+    end,
+  }):find()
+end
+
+map("n", "<leader>gT", function()
+  choose_commit(function(commit, root, files)
+    local file_entries = {}
+    for _, file in ipairs(files) do
+      if file ~= "" then
+        file_entries[#file_entries + 1] = {
+          value = file,
+          filename = vim.fs.joinpath(root, file),
+          display = file,
+          ordinal = file,
+        }
+      end
+    end
+    local conf = require("telescope.config").values
+    require("telescope.pickers").new({}, {
+      prompt_title = "Files in " .. commit.msg,
+      finder = require("telescope.finders").new_table {
+        results = file_entries,
+        entry_maker = function(entry)
+          return entry
+        end,
+      },
+      sorter = conf.generic_sorter({}),
+      previewer = require("telescope.previewers").new_buffer_previewer {
+        title = "Commit diff",
+        define_preview = function(self, entry)
+          local diff = vim.fn.systemlist({
+            "git", "-C", root, "show", "--format=", "--no-ext-diff", "--no-color", "--first-parent",
+            commit.value, "--", entry.value,
+          })
+          vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, #diff > 0 and diff or { "(No text diff available)" })
+          vim.bo[self.state.bufnr].filetype = "diff"
+        end,
+      },
+    }):find()
+  end)
+end, { desc = "Choose commit files to audit in Telescope" })
+
+map("n", "<leader>gW", function()
+  choose_commit(function(commit, root, files)
+    local items = {}
+    for _, file in ipairs(files) do
+      if file ~= "" then
+        items[#items + 1] = { filename = vim.fs.joinpath(root, file), lnum = 1 }
+      end
+    end
+    vim.fn.setqflist({}, " ", { title = "Files in " .. commit.msg, items = items })
+    vim.cmd("copen")
+  end)
+end, { desc = "Choose commit files to audit in quickfix" })
+
+map("n", "<leader>sb", function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local file = vim.api.nvim_buf_get_name(bufnr)
+    if not vim.fs.basename(file):match("^index%.[^.]+$") then
+      return
+    end
+
+    local directory = vim.fs.dirname(file)
+    local scan = vim.uv.fs_scandir(directory)
+    if not scan then
+      return
+    end
+
+    local stories = {}
+    while true do
+      local name = vim.uv.fs_scandir_next(scan)
+      if not name then
+        break
+      end
+      if name:match("%.stories%.[jt]sx?$") then
+        stories[name] = true
+      end
+    end
+    if not next(stories) then
+      return
+    end
+
+    local root = vim.fs.root(bufnr, { ".git" }) or vim.fn.getcwd()
+    local relative_directory = vim.fs.relpath(root, directory)
+    local relative_prefix = relative_directory == "." and "" or vim.pesc(relative_directory .. "/")
+    vim.system({ "curl", "-fsS", "--max-time", "2", "http://localhost:6006/index.json" }, { text = true }, function(result)
+      if result.code ~= 0 then
+        return
+      end
+
+      local ok, index = pcall(vim.json.decode, result.stdout)
+      if not ok or not index.entries then
+        return
+      end
+
+      local matching = {}
+      for id, entry in pairs(index.entries) do
+        local import_path = entry.importPath and entry.importPath:gsub("^%./", "")
+        local story_file = import_path and import_path:match("([^/]+)$")
+        if entry.type == "story" and stories[story_file] and import_path:match("^" .. relative_prefix) then
+          matching[#matching + 1] = id
+        end
+      end
+      table.sort(matching)
+      if #matching > 0 then
+        vim.schedule(function()
+          vim.ui.open("http://localhost:6006/?path=/story/" .. matching[1])
+        end)
+      end
+    end)
+end, { desc = "Open sibling Storybook story" })
 
 -- Dialog floating untuk path reference (Full width, border none agar bersih di-copy di HP tanpa karakter border)
 local function show_path_dialog(text)
@@ -166,4 +314,3 @@ end
 vim.api.nvim_create_user_command("ReloadUI", reload_ui_config, {
   desc = "Reload theme and statusline config",
 })
-map("n", "<leader>rr", reload_ui_config, { desc = "Reload UI config" })

@@ -88,22 +88,22 @@ return {
   },
 
   {
-    "williamboman/mason.nvim",
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    lazy = false,
     opts = {
       ensure_installed = {
-        "typescript-language-server",
-        "html-lsp",
+        "clang-format",
         "css-lsp",
-        "css-variables-language-server",
-        "tailwindcss-language-server",
-        "eslint-lsp",
-        "prettier",
-        "prettierd",
-        "stylua",
+        "html-lsp",
         "json-lsp",
-        "lua-language-server",
-        "stylelint-lsp",
+        "prettier",
+        "stylua",
+        "tailwindcss-language-server",
+        "typescript-language-server",
       },
+    },
+    dependencies = {
+      { "williamboman/mason.nvim", opts = {} },
     },
   },
 
