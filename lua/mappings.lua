@@ -314,3 +314,8 @@ end
 vim.api.nvim_create_user_command("ReloadUI", reload_ui_config, {
   desc = "Reload theme and statusline config",
 })
+map("n", "<leader>rr", reload_ui_config, { desc = "Reload UI config" })
+
+-- Markdown preview
+map("n", "<leader>mp", "<cmd>RenderMarkdown toggle<CR>", { desc = "Toggle Render Markdown (di dalam Neovim)" })
+map("n", "<leader>md", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Toggle Markdown Preview (di browser)" })

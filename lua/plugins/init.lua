@@ -24,13 +24,6 @@ end, { desc = "Lihat daftar tutorial Indonesia" })
 
 return {
   {
-    "iamcco/markdown-preview.nvim",
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    ft = { "markdown" },
-    build = "cd app && yarn install --frozen-lockfile",
-  },
-
-  {
     "stevearc/conform.nvim",
     event = "BufWritePre", -- format on save
     opts = require "configs.conform",
@@ -100,6 +93,7 @@ return {
     opts = {
       ensure_installed = {
         "clang-format",
+        "tree-sitter-cli",
         "css-lsp",
         "html-lsp",
         "json-lsp",
@@ -112,6 +106,75 @@ return {
     dependencies = {
       { "williamboman/mason.nvim", opts = {} },
     },
+  },
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = function(_, opts)
+      opts.ensure_installed = vim.list_extend(opts.ensure_installed or {}, {
+        "bash",
+        "css",
+        "html",
+        "javascript",
+        "jsdoc",
+        "json",
+        "tsx",
+        "typescript",
+        "yaml",
+        "markdown",
+        "markdown_inline",
+      })
+      return opts
+    end,
+    config = function(_, opts)
+      local treesitter = require "nvim-treesitter"
+      treesitter.setup()
+
+      local installed = treesitter.get_installed "parsers"
+      local missing = vim.tbl_filter(function(parser)
+        return not vim.list_contains(installed, parser)
+      end, opts.ensure_installed)
+
+      if #missing > 0 then
+        treesitter.install(missing)
+      end
+    end,
+  },
+
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({})
+    end,
+  },
+
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    opts = {},
+  },
+
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = function()
+      vim.fn["mkdp#util#install"]()
+    end,
+    init = function()
+      require("configs.markdown_preview").setup()
+    end,
   },
 
   -- test new blink
@@ -127,3 +190,4 @@ return {
   -- 	},
   -- },
 }
+
