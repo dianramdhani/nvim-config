@@ -24,6 +24,13 @@ end, { desc = "Lihat daftar tutorial Indonesia" })
 
 return {
   {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = { "markdown" },
+    build = "cd app && yarn install --frozen-lockfile",
+  },
+
+  {
     "stevearc/conform.nvim",
     event = "BufWritePre", -- format on save
     opts = require "configs.conform",
