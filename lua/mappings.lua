@@ -127,6 +127,15 @@ map("n", "<leader>gT", function()
     local conf = require("telescope.config").values
     require("telescope.pickers").new({}, {
       prompt_title = "Files in " .. commit.msg,
+      layout_strategy = "vertical",
+      layout_config = {
+        width = 0.95,
+        height = 0.95,
+        prompt_position = "top",
+        mirror = true,
+        preview_cutoff = 0,
+        preview_height = 0.67,
+      },
       finder = require("telescope.finders").new_table {
         results = file_entries,
         entry_maker = function(entry)
@@ -145,6 +154,18 @@ map("n", "<leader>gT", function()
           vim.bo[self.state.bufnr].filetype = "diff"
         end,
       },
+      attach_mappings = function(_, map_picker)
+        local actions = require "telescope.actions"
+        map_picker({ "i", "n" }, "<PageDown>", actions.preview_scrolling_down)
+        map_picker({ "i", "n" }, "<PageUp>", actions.preview_scrolling_up)
+        map_picker({ "i", "n" }, "<C-d>", actions.preview_scrolling_down)
+        map_picker({ "i", "n" }, "<C-u>", actions.preview_scrolling_up)
+        map_picker({ "i", "n" }, "<C-f>", actions.preview_scrolling_down)
+        map_picker({ "i", "n" }, "<C-b>", actions.preview_scrolling_up)
+        map_picker("n", "J", actions.preview_scrolling_down)
+        map_picker("n", "K", actions.preview_scrolling_up)
+        return true
+      end,
     }):find()
   end)
 end, { desc = "Choose commit files to audit in Telescope" })
