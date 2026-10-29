@@ -39,8 +39,11 @@ map("n", "<leader>ga", function()
 end, { desc = "Git add current file directory" })
 map("n", "<leader>gt", function()
   local actions = require "telescope.actions"
-  local make_git_status_entry = require("telescope.make_entry").gen_from_git_status({ cwd = vim.fn.getcwd() })
+  local action_state = require "telescope.actions.state"
+  local cwd = vim.fs.root(vim.fn.getcwd(), { ".git" }) or vim.fn.getcwd()
+  local make_git_status_entry = require("telescope.make_entry").gen_from_git_status({ cwd = cwd })
   require("telescope.builtin").git_status {
+    cwd = cwd,
     layout_strategy = "vertical",
     layout_config = {
       width = 0.95,
@@ -52,11 +55,20 @@ map("n", "<leader>gt", function()
     },
     entry_maker = function(entry)
       local git_entry = make_git_status_entry(entry)
-      if git_entry and git_entry.status:sub(2, 2) ~= " " then
+      if git_entry then
         return git_entry
       end
     end,
-    attach_mappings = function(_, map_inner)
+    attach_mappings = function(prompt_bufnr, map_inner)
+      map_inner({ "i", "n" }, "<CR>", function()
+        local entry = action_state.get_selected_entry()
+        local picker = action_state.get_current_picker(prompt_bufnr)
+        if entry and entry.path and vim.api.nvim_win_is_valid(picker.original_win_id) then
+          vim.api.nvim_win_call(picker.original_win_id, function()
+            vim.cmd("edit " .. vim.fn.fnameescape(entry.path))
+          end)
+        end
+      end, { desc = "Open file and keep Git Status open" })
       -- Scroll preview di insert mode & normal mode
       map_inner({ "i", "n" }, "<PageDown>", actions.preview_scrolling_down)
       map_inner({ "i", "n" }, "<PageUp>", actions.preview_scrolling_up)
@@ -70,7 +82,28 @@ map("n", "<leader>gt", function()
       return true
     end,
   }
-end, { desc = "Telescope git status (preview bawah 2/3 & scrollable)" })
+end, { desc = "Telescope git status (Enter keeps open)" })
+map("n", "<leader>gT", function()
+  local cwd = vim.fs.root(vim.fn.getcwd(), { ".git" }) or vim.fn.getcwd()
+  local result = vim.system({
+    "git", "-C", cwd, "status", "--porcelain=v1", "-z", "--untracked-files=all", "--no-renames",
+  }, { text = true }):wait()
+  if result.code ~= 0 then
+    vim.notify(result.stderr ~= "" and result.stderr or "git status gagal", vim.log.levels.ERROR)
+    return
+  end
+
+  local items = {}
+  for entry in result.stdout:gmatch("([^%z]+)%z") do
+    local status, file = entry:match("^(..) (.*)$")
+    if status then
+      items[#items + 1] = { filename = vim.fs.joinpath(cwd, file), lnum = 1, text = status }
+    end
+  end
+
+  vim.fn.setqflist({}, " ", { title = "Git status", items = items })
+  vim.cmd("copen")
+end, { desc = "Git status in quickfix window" })
 local function choose_commit(on_select)
   local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
   local entries = {}
@@ -111,7 +144,7 @@ local function choose_commit(on_select)
   }):find()
 end
 
-map("n", "<leader>gT", function()
+map("n", "<leader>gw", function()
   choose_commit(function(commit, root, files)
     local file_entries = {}
     for _, file in ipairs(files) do
