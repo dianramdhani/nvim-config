@@ -92,7 +92,6 @@ return {
     lazy = false,
     opts = {
       ensure_installed = {
-        "clang-format",
         "tree-sitter-cli",
         "css-lsp",
         "html-lsp",
