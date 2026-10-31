@@ -15,7 +15,7 @@ Konfigurasi ini memakai **NvChad v2.5** sebagai dasar, lalu menambahkan pengatur
 | `init.lua` | Titik awal: menyiapkan lazy.nvim, NvChad, plugin, lalu memuat konfigurasi pribadi. |
 | `lua/options.lua` | Opsi Neovim tambahan, termasuk lipatan kode otomatis berbasis Tree-sitter. |
 | `lua/autocmds.lua` | Memuat autocmd bawaan NvChad. Tambahkan autocmd pribadi di sini bila memang diperlukan. |
-| `lua/chadrc.lua` | Tampilan dan pengaturan UI NvChad, seperti tema. |
+| `lua/chadrc.lua` | Pengaturan UI NvChad, termasuk tema, statusline, dan welcome dashboard. |
 | `lua/mappings.lua` | Memuat keymap bawaan NvChad dan keymap pribadi yang umum. |
 | `lua/mappings/git.lua` | Shortcut Git dan pilihan file dari commit. |
 | `lua/mappings/workflow.lua` | Shortcut Storybook, path, diagnostic, Markdown, dan browser. |
@@ -101,6 +101,7 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 - `:TutorList` menampilkan daftar tutorial.
 - `:TutorID1` sampai `:TutorID4` membuka tutorial dasar, editing, gerakan, dan Visual mode.
 - `:CopyPath` atau `:CP` menampilkan dan menyalin path serta nomor baris; bisa dipanggil untuk baris aktif atau rentang Visual.
+- `:Nvdash` membuka dashboard welcome dengan tabel terpisah untuk shortcut umum dan shortcut NvimTree. Dashboard tampil otomatis saat Neovim dibuka tanpa file.
 - `:ReloadUI` memuat ulang tema dan statusline saja. `Space rr` sengaja tidak dipetakan; untuk memuat ulang seluruh konfigurasi, tutup lalu buka kembali Neovim.
 
 ## Cara mengubah konfigurasi
