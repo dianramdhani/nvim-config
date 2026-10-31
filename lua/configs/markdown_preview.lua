@@ -74,10 +74,10 @@ function M.show_url_dialog(url)
   vim.keymap.set("n", "q", close, { buffer = buf, nowait = true })
   vim.keymap.set("n", "<CR>", close, { buffer = buf, nowait = true })
 
-  -- Shortcut 'b' untuk membuka browser Brave di monitor laptop (:0) jika dibutuhkan
+  -- Shortcut 'b' untuk membuka Google Chrome di monitor laptop (:0) jika dibutuhkan
   vim.keymap.set("n", "b", function()
-    vim.fn.system("DISPLAY=:0 brave-browser " .. vim.fn.shellescape(url) .. " >/dev/null 2>&1 &")
-    vim.notify("Membuka Brave di monitor laptop (DISPLAY=:0)...", vim.log.levels.INFO)
+    vim.fn.system("DISPLAY=:0 google-chrome " .. vim.fn.shellescape(url) .. " >/dev/null 2>&1 &")
+    vim.notify("Membuka Google Chrome di monitor laptop (DISPLAY=:0)...", vim.log.levels.INFO)
     close()
   end, { buffer = buf, nowait = true })
 
@@ -108,7 +108,7 @@ function M.setup()
   else
     vim.g.mkdp_open_to_the_world = 0
     vim.g.mkdp_open_ip = ""
-    vim.g.mkdp_browser = "brave-browser"
+    vim.g.mkdp_browser = "google-chrome"
     vim.g.mkdp_browserfunc = ""
   end
 end

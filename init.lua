@@ -1,7 +1,7 @@
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
--- bootstrap lazy and all plugins
+-- Pasang lazy.nvim jika belum tersedia, lalu muat plugin.
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
 if not vim.uv.fs_stat(lazypath) then
@@ -13,7 +13,7 @@ vim.opt.rtp:prepend(lazypath)
 
 local lazy_config = require "configs.lazy"
 
--- load plugins
+-- NvChad dipakai sebagai plugin dasar; plugin pribadi didefinisikan di lua/plugins.
 require("lazy").setup({
   {
     "NvChad/NvChad",
@@ -25,13 +25,15 @@ require("lazy").setup({
   { import = "plugins" },
 }, lazy_config)
 
--- load theme
+-- Muat cache tema yang dibuat oleh NvChad.
 dofile(vim.g.base46_cache .. "defaults")
 dofile(vim.g.base46_cache .. "statusline")
 
 require "options"
 require "autocmds"
+require "commands"
 
+-- Keymap dimuat setelah startup agar modul NvChad siap.
 vim.schedule(function()
   require "mappings"
 end)

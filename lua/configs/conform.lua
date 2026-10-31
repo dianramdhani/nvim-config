@@ -16,7 +16,7 @@ local options = {
   },
 
   format_on_save = {
-    -- These options will be passed to conform.format()
+    -- Batas waktu dan aturan fallback saat menyimpan file.
     timeout_ms = 500,
     lsp_format = "fallback",
   },
