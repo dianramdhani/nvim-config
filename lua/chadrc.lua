@@ -5,7 +5,7 @@
 local M = {}
 
 M.base46 = {
-	theme = "obsidian-ember",
+	theme = "radium",
 
 	-- Warna kategori di nvdash: tiap grup punya warna berbeda agar otak
 	-- belajar "area warna = topik" tanpa harus membaca header-nya.
@@ -77,7 +77,7 @@ M.ui = {
 	},
 }
 
--- shortcut: daftar ini disalin manual; sinkronkan dengan selected-shortcut.md saat daftar berubah.
+-- shortcut: semua kelompok ada di sini; welcome memilih tiga kelompok acak tiap kali dibuka.
 
 -- Helper: key kiri rata kiri lebar 12, key kanan rata kiri lebar 12
 -- Format: "  KEY   label        ·  KEY   label"
@@ -89,7 +89,7 @@ local function sc(k1, l1, k2, l2)
 	end
 end
 
--- Tagline campur aduk Indonesia, max 25 huruf, random tiap buka
+-- Tagline bahasa Indonesia, maksimal 25 karakter, diacak tiap sesi.
 local taglines = {
 	-- coding life
 	"git push, doa dulu.",
@@ -198,13 +198,98 @@ local taglines = {
 	"hari ini harus produktif.",
 	"semangat, bro. semangat.",
 }
-math.randomseed(os.time())
+math.randomseed(os.time() + vim.fn.getpid())
 local tagline = taglines[math.random(#taglines)]
 
 -- Rata tengah tagline di bawah ASCII (lebar konten = 26 char)
 local ascii_width = 26
 local pad = math.floor((ascii_width - #tagline) / 2)
 local tagline_centered = string.rep(" ", pad + 2) .. tagline
+
+local shortcut_groups = {
+	{
+		title = "LSP & Code",
+		rows = {
+			{ txt = sc("gr", "Go to references", "<leader>ca", "Code action"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>ld", "Line diagnostics", "<leader>ce", "Copy line + diag"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "File & Buffer",
+		rows = {
+			{ txt = sc("<leader>fo", "Recent files", "<leader>fb", "Open buffers"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>x", "Close buffer", "<leader>cp", "Copy path/fold"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "Window",
+		rows = {
+			{ txt = sc("<leader>wm", "Window maximize", "<leader>sr", "Split right"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "Git",
+		rows = {
+			{ txt = sc("<leader>gt", "Status (Telescope)", "<leader>gT", "Status (quickfix)"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>gw", "Commit diff (scope)", "<leader>gW", "Commit files (qf)"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "Fold & Terminal",
+		rows = {
+			{ txt = sc("<leader>z", "Toggle fold"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>tt", "Open terminal", "<C-x>", "Leave terminal mode"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "Browser & Preview",
+		rows = {
+			{ txt = sc("<leader>sb", "Storybook component", "<leader>bo", "Open current route"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>md", "Markdown in browser"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+	{
+		title = "NvimTree",
+		rows = {
+			{ txt = sc("a", "Create file/dir", "r", "Rename"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("D", "Delete (trash)", "Y", "Copy relative path"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("I", "Filter git-ignored", "Tab", "Preview"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<C-n>", "Toggle tree"), hl = "NvDashButtons", no_gap = true },
+		},
+	},
+}
+
+local function pilih_tiga_kelompok()
+	local order = {}
+	for i = 1, #shortcut_groups do
+		order[i] = i
+	end
+
+	for i = #order, 2, -1 do
+		local j = math.random(i)
+		order[i], order[j] = order[j], order[i]
+	end
+
+	local buttons = {}
+	for i = 1, 3 do
+		local group = shortcut_groups[order[i]]
+		buttons[#buttons + 1] = { txt = "  " .. group.title, hl = "NvDashAscii", no_gap = true }
+		vim.list_extend(buttons, group.rows)
+		buttons[#buttons + 1] = { txt = "", no_gap = true }
+	end
+
+	buttons[#buttons + 1] = { txt = "  ch  Open full cheatsheet", keys = "ch", cmd = "NvCheatsheet", hl = "NvDashFooter", no_gap = true }
+	return buttons
+end
+
+vim.api.nvim_create_autocmd("BufWinLeave", {
+	group = vim.api.nvim_create_augroup("NvDashShortcutShuffle", { clear = true }),
+	callback = function(args)
+		if args.buf == vim.g.nvdash_buf then
+			require("nvconfig").nvdash.buttons = pilih_tiga_kelompok
+		end
+	end,
+})
 
 M.nvdash = {
 	load_on_startup = true,
@@ -219,46 +304,7 @@ M.nvdash = {
 		"",
 	},
 
-	buttons = {
-		-- ── LSP ──────────────────────────────────────────────────────────
-		{ txt = "  LSP & Code", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("gr", "Cari referensi", "<leader>ca", "Code Action"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("<leader>ld", "Diagnostic baris"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── File & Buffer ─────────────────────────────────────────────────
-		{ txt = "  File & Buffer", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("<leader>fo", "File terbaru", "<leader>fb", "Buffer aktif"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("<leader>x", "Tutup buffer", "<leader>cp", "Salin path/fold"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── Window ─────────────────────────────────────────────────────────
-		{ txt = "  Window", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("<leader>wm", "Fokus/pulihkan ukuran"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── Git ───────────────────────────────────────────────────────────
-		{ txt = "  Git", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("<leader>gt", "Status (Telescope)", "<leader>gT", "Status (quickfix)"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("<leader>gw", "Commit diff (scope)", "<leader>gW", "Commit files (qf)"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── Fold & Terminal ───────────────────────────────────────────────
-		{ txt = "  Fold & Terminal", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("za", "Buka/tutup fold", "zc", "Tutup fold"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("<C-x>", "Keluar terminal mode"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── NvimTree ──────────────────────────────────────────────────────
-		{ txt = "  NvimTree", hl = "NvDashAscii", no_gap = true },
-		{ txt = sc("a", "Buat file/dir", "r", "Rename"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("D", "Hapus (trash)", "Y", "Salin path relatif"), hl = "NvDashButtons", no_gap = true },
-		{ txt = sc("I", "Filter git-ignored", "Tab", "Pratinjau"), hl = "NvDashButtons", no_gap = true },
-		{ txt = "" },
-
-		-- ── Footer ────────────────────────────────────────────────────────
-		{ txt = "  ch  Cheatsheet lengkap", keys = "ch", cmd = "NvCheatsheet", hl = "NvDashFooter", no_gap = true },
-	},
+	buttons = pilih_tiga_kelompok,
 }
 
 -- M.ui = {

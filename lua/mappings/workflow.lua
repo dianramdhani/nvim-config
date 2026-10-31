@@ -153,6 +153,8 @@ map("n", "<leader>cp", function()
 end, { desc = "Pilih isi lipatan atau salin referensi path" })
 map("x", "<leader>cp", ":CopyPath<CR>", { desc = "Salin referensi path rentang terpilih" })
 
+map("n", "<leader>z", "za", { desc = "Buka atau tutup lipatan" })
+
 map("n", "<leader>ce", function()
   local buf = vim.api.nvim_get_current_buf()
   local file = vim.api.nvim_buf_get_name(buf)
