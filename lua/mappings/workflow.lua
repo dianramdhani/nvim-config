@@ -135,7 +135,7 @@ vim.api.nvim_create_user_command("CP", function(opts)
   execute_copy_path(opts.line1, opts.line2)
 end, { range = true, desc = "Tampilkan dan salin referensi path" })
 
--- Pada lipatan tertutup, shortcut ini memilih seluruh baris lipatan.
+-- Pada lipatan tertutup, shortcut ini menyalin referensi seluruh lipatan.
 map("n", "<leader>cp", function()
   local line = vim.api.nvim_win_get_cursor(0)[1]
   local fold_start = vim.fn.foldclosed(line)
@@ -145,12 +145,8 @@ map("n", "<leader>cp", function()
     return
   end
 
-  local fold_end = vim.fn.foldclosedend(line)
-  vim.cmd "normal! zo"
-  vim.api.nvim_win_set_cursor(0, { fold_start, 0 })
-  vim.cmd "normal! V"
-  vim.api.nvim_win_set_cursor(0, { fold_end, 0 })
-end, { desc = "Pilih isi lipatan atau salin referensi path" })
+  execute_copy_path(fold_start, vim.fn.foldclosedend(line))
+end, { desc = "Salin referensi path atau rentang lipatan" })
 map("x", "<leader>cp", ":CopyPath<CR>", { desc = "Salin referensi path rentang terpilih" })
 
 map("n", "<leader>z", "za", { desc = "Buka atau tutup lipatan" })
