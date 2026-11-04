@@ -1,5 +1,10 @@
 require "nvchad.options"
 
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.wrap = false
+vim.opt.inccommand = "split"
+
 -- Pengaturan tambahan untuk perbandingan diff.
 vim.opt.diffopt:append "horizontal"
 
