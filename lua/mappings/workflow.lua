@@ -62,50 +62,6 @@ map("n", "<leader>sb", function()
   )
 end, { desc = "Buka Storybook untuk komponen ini" })
 
--- Dialog selebar layar menampilkan path tanpa border agar mudah disalin.
-local function show_path_dialog(text)
-  local width = vim.o.columns
-  local needed_lines = math.max(math.ceil(#text / width), 1)
-  local height = needed_lines
-  local row = math.max(math.floor((vim.o.lines - height) / 2), 0)
-
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].buftype = "nofile"
-  vim.bo[buf].bufhidden = "wipe"
-  vim.bo[buf].swapfile = false
-
-  -- Tampilkan hanya teks path agar hasil salinan tidak tercampur elemen UI.
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { text })
-  vim.bo[buf].modifiable = false
-
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    row = row,
-    col = 0,
-    style = "minimal",
-    border = "none",
-  })
-
-  vim.wo[win].wrap = true
-  vim.wo[win].winhighlight = "Normal:Pmenu,NormalFloat:Pmenu"
-
-  -- Salin otomatis ke clipboard sistem (+) dan register default (").
-  pcall(vim.fn.setreg, "+", text)
-  pcall(vim.fn.setreg, '"', text)
-
-  local close = function()
-    if vim.api.nvim_win_is_valid(win) then
-      vim.api.nvim_win_close(win, true)
-    end
-  end
-
-  vim.keymap.set("n", "<Esc>", close, { buffer = buf, nowait = true })
-  vim.keymap.set("n", "q", close, { buffer = buf, nowait = true })
-  vim.keymap.set("n", "<CR>", close, { buffer = buf, nowait = true })
-end
-
 local function execute_copy_path(line1, line2)
   local file = vim.api.nvim_buf_get_name(0)
   if file == "" then
@@ -123,17 +79,20 @@ local function execute_copy_path(line1, line2)
   end
 
   local line_ref = (s == e) and string.format("#L%d", s) or string.format("#L%d-L%d", s, e)
-  show_path_dialog(rel_path .. line_ref)
+  local text = rel_path .. line_ref
+  pcall(vim.fn.setreg, "+", text)
+  pcall(vim.fn.setreg, '"', text)
+  vim.api.nvim_echo({ { "Copied: " .. text, "MoreMsg" } }, false, {})
 end
 
 -- :CopyPath dan :CP menerima baris aktif atau rentang Visual.
 vim.api.nvim_create_user_command("CopyPath", function(opts)
   execute_copy_path(opts.line1, opts.line2)
-end, { range = true, desc = "Tampilkan dan salin referensi path" })
+end, { range = true, desc = "Salin referensi path" })
 
 vim.api.nvim_create_user_command("CP", function(opts)
   execute_copy_path(opts.line1, opts.line2)
-end, { range = true, desc = "Tampilkan dan salin referensi path" })
+end, { range = true, desc = "Salin referensi path" })
 
 -- Pada lipatan tertutup, shortcut ini menyalin referensi seluruh lipatan.
 map("n", "<leader>cp", function()

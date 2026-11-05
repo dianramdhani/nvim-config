@@ -5,7 +5,7 @@
 local M = {}
 
 M.base46 = {
-	theme = "radium",
+	theme = "ayu_dark",
 
 	-- Warna kategori di nvdash: tiap grup punya warna berbeda agar otak
 	-- belajar "area warna = topik" tanpa harus membaca header-nya.
