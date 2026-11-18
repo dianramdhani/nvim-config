@@ -236,3 +236,102 @@ map("n", "<leader>gW", function()
     vim.cmd "copen"
   end)
 end, { desc = "Pilih file dari commit untuk quickfix" })
+
+map("n", "<leader>gb", function()
+  local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
+  local branches = vim.fn.systemlist { "git", "-C", root, "branch", "--all", "--format=%(refname:short)" }
+  if vim.v.shell_error ~= 0 then
+    vim.notify("Tidak bisa membaca daftar branch Git", vim.log.levels.ERROR)
+    return
+  end
+
+  local function show_files(branch)
+    local result = vim.system({ "git", "-C", root, "diff", "--name-only", "-z", branch .. "...HEAD" }, { text = true }):wait()
+    if result.code ~= 0 then
+      vim.notify(result.stderr ~= "" and result.stderr or "git diff gagal", vim.log.levels.ERROR)
+      return
+    end
+
+    local files, actions = {}, require "telescope.actions"
+    for file in result.stdout:gmatch "([^%z]+)%z?" do
+      files[#files + 1] = { value = file, display = file, ordinal = file }
+    end
+
+    local action_state = require "telescope.actions.state"
+    local conf = require("telescope.config").values
+    require("telescope.pickers")
+      .new({}, {
+        prompt_title = "File berubah sejak " .. branch,
+        layout_strategy = "vertical",
+        layout_config = {
+          width = 0.95,
+          height = 0.95,
+          prompt_position = "top",
+          mirror = true,
+          preview_cutoff = 0,
+          preview_height = 0.67,
+        },
+        finder = require("telescope.finders").new_table {
+          results = files,
+          entry_maker = function(entry)
+            return entry
+          end,
+        },
+        sorter = conf.generic_sorter {},
+        previewer = require("telescope.previewers").new_buffer_previewer {
+          title = "Diff " .. branch .. "...HEAD",
+          define_preview = function(self, entry)
+            local diff = vim.fn.systemlist {
+              "git", "-C", root, "diff", "--no-ext-diff", "--no-color", branch .. "...HEAD", "--", entry.value,
+            }
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, #diff > 0 and diff or { "(Diff tidak tersedia)" })
+            vim.bo[self.state.bufnr].filetype = "diff"
+          end,
+        },
+        attach_mappings = function(prompt_bufnr, map_picker)
+          local open_file = function()
+            local entry = action_state.get_selected_entry()
+            if entry then
+              actions.close(prompt_bufnr)
+              vim.cmd("edit " .. vim.fn.fnameescape(vim.fs.joinpath(root, entry.value)))
+            end
+          end
+          map_picker("i", "<CR>", open_file)
+          map_picker("n", "<CR>", open_file)
+          return true
+        end,
+      })
+      :find()
+  end
+
+  local entries = vim.tbl_map(function(branch)
+    return { value = branch, display = branch, ordinal = branch }
+  end, branches)
+  local conf = require("telescope.config").values
+  require("telescope.pickers")
+    .new({}, {
+      prompt_title = "Pilih branch pembanding",
+      finder = require("telescope.finders").new_table {
+        results = entries,
+        entry_maker = function(entry)
+          return entry
+        end,
+      },
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr, map_picker)
+        local actions = require "telescope.actions"
+        local action_state = require "telescope.actions.state"
+        local select_branch = function()
+          local entry = action_state.get_selected_entry()
+          if entry then
+            actions.close(prompt_bufnr)
+            show_files(entry.value)
+          end
+        end
+        map_picker("i", "<CR>", select_branch)
+        map_picker("n", "<CR>", select_branch)
+        return true
+      end,
+    })
+    :find()
+end, { desc = "Pilih branch pembanding dan lihat file berubah" })
