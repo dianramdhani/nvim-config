@@ -4,6 +4,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.wrap = false
 vim.opt.inccommand = "split"
+vim.opt.autoread = true
 
 -- Pengaturan tambahan untuk perbandingan diff.
 vim.opt.diffopt:append "horizontal"
