@@ -40,7 +40,7 @@ M.ui = {
 					if not gitdir then
 						return ""
 					end
-					if not vim.fs.is_absolute(gitdir) then
+					if vim.fn.isabsolutepath(gitdir) == 0 then
 						gitdir = root .. "/" .. gitdir
 					end
 					git_dir = vim.fs.normalize(gitdir)
