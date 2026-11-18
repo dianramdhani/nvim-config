@@ -296,6 +296,8 @@ map("n", "<leader>gb", function()
               vim.cmd("edit " .. vim.fn.fnameescape(vim.fs.joinpath(root, entry.value)))
             end
           end
+          map_picker({ "i", "n" }, "<PageDown>", actions.preview_scrolling_down)
+          map_picker({ "i", "n" }, "<PageUp>", actions.preview_scrolling_up)
           map_picker("i", "<CR>", open_file)
           map_picker("n", "<CR>", open_file)
           return true
