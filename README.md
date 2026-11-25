@@ -19,19 +19,18 @@ Konfigurasi ini memakai **NvChad v2.5** sebagai dasar, lalu menambahkan pengatur
 | `lua/mappings.lua` | Memuat keymap bawaan NvChad dan keymap pribadi yang umum. |
 | `lua/mappings/git.lua` | Shortcut Git dan pilihan file dari commit. |
 | `lua/mappings/workflow.lua` | Shortcut Storybook, path, diagnostic, Markdown, dan browser. |
-| `lua/commands.lua` | Perintah pribadi seperti `:TutorList` dan `:TutorID1`. |
 | `lua/plugins/init.lua` | Daftar plugin tambahan dan kapan plugin dimuat. |
 | `lua/configs/lazy.lua` | Pengaturan lazy.nvim, termasuk plugin bawaan yang dinonaktifkan. |
 | `lua/configs/conform.lua` | Formatter untuk tiap jenis file dan format otomatis saat menyimpan. |
 | `lua/configs/lspconfig.lua` | Language server yang aktif dan shortcut LSP. |
 | `lua/configs/markdown_preview.lua` | Pengaturan pratinjau Markdown di browser. |
+| `AGENTS.md` | Aturan untuk agen AI yang mengubah config ini, termasuk alur auto commit dan push. `CLAUDE.md` hanya merujuk ke file ini. |
 | `lazy-lock.json` | Versi plugin yang dikunci oleh lazy.nvim; biasanya dikelola otomatis. |
-| `docs/tutorials/id/` | Tutorial Vim berbahasa Indonesia. |
 
 ### Urutan saat Neovim dibuka
 
 1. `init.lua` menyiapkan lazy.nvim, NvChad, dan daftar plugin.
-2. `options.lua`, `autocmds.lua`, dan `commands.lua` dimuat.
+2. `options.lua` dan `autocmds.lua` dimuat.
 3. Keymap dimuat setelahnya. `mappings.lua` memuat keymap NvChad, kemudian keymap pribadi.
 
 Karena pemuatan pribadi terjadi setelah keymap NvChad, shortcut pribadi dapat mengganti shortcut bawaan dengan tombol yang sama. Contohnya `<leader>gt` memakai Git status khusus di konfigurasi ini.
@@ -49,7 +48,8 @@ Karena pemuatan pribadi terjadi setelah keymap NvChad, shortcut pribadi dapat me
 | `Space fw` | Cari teks di project. |
 | `Space e` | Fokus ke panel file NvimTree. |
 | `Space tt` | Jalankan `:term` di window aktif. |
-| `Space sv` | Buat split, lalu pindahkan window baru ke sisi kanan; setara dengan `:sp` lalu `Ctrl-w L`. |
+| `Space sr` | Buat split, lalu pindahkan window baru ke sisi kanan; setara dengan `:sp` lalu `Ctrl-w L`. |
+| `Space wm` | Besarkan window aktif sepenuhnya; tekan lagi untuk memulihkan ukuran semula. |
 | `Space h` / `Space v` | Buka terminal NvChad di split horizontal / vertikal. |
 | `Ctrl-h/j/k/l` | Pindah antar-window Neovim. |
 | `Ctrl-x` di Terminal mode | Keluar dari input terminal ke Normal mode; terminalnya tidak ditutup. |
@@ -61,7 +61,8 @@ Karena pemuatan pribadi terjadi setelah keymap NvChad, shortcut pribadi dapat me
 | `gr` | Cari referensi simbol di LSP. |
 | `Space ca` | Tampilkan Code Action LSP. |
 | `Space ld` | Lihat diagnostic pada baris aktif. |
-| `Space cp` | Jika kursor berada di lipatan tertutup, buka dan pilih seluruh baris lipatan. Jika tidak, tampilkan serta salin referensi path dan nomor baris. Dalam Visual mode, salin referensi rentang yang dipilih. |
+| `Space cp` | Salin referensi path dan nomor baris (misalnya `src/app.tsx#L10`). Jika kursor berada di lipatan tertutup, yang disalin adalah rentang seluruh lipatan. Dalam Visual mode, salin rentang yang dipilih. |
+| `Space z` | Buka atau tutup lipatan (sama dengan `za`). |
 | `Space ce` | Salin baris aktif beserta diagnostic-nya. Hanya bekerja jika baris itu memiliki diagnostic. |
 | `za` | Buka atau tutup lipatan di bawah kursor. |
 | `zc` / `zo` | Tutup / buka lipatan di bawah kursor. |
@@ -81,6 +82,7 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 | `Space ga` | Stage seluruh isi folder tempat file aktif berada. Periksa folder yang ditampilkan sebelum melanjutkan workflow Git. |
 | `Space gw` | Pilih commit, lalu pilih file yang berubah untuk melihat diff di Telescope. |
 | `Space gW` | Pilih commit, lalu tampilkan file yang berubah di quickfix. |
+| `Space gb` | Pilih branch pembanding, lalu lihat file yang berubah sejak branch itu (`branch...HEAD`) beserta diff-nya di Telescope. |
 
 ### Alur kerja pribadi lainnya
 
@@ -91,17 +93,16 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 | `Space md` | Tampilkan/sembunyikan pratinjau Markdown di browser. |
 | `Space bo` | Buka route aplikasi lokal terkait di browser. |
 | `Space th` | Buka pemilih tema NvChad. |
-| `;` | Buka command line Neovim. |
+| `:` | Buka command line Neovim. |
+| `;` / `,` | Ulangi pencarian `f`/`t`/`F`/`T` terakhir ke arah yang sama / berlawanan. |
 | `jk` di Insert mode | Kembali ke Normal mode. |
 
 > Shortcut bawaan NvChad lainnya bisa dilihat dengan `Space c h` (cheatsheet) atau `:Telescope keymaps`. Shortcut LSP `gr`, `Space ca`, dan `Space ld` tersedia saat LSP terpasang pada file aktif.
 
-## Perintah tutorial
+## Perintah pribadi
 
-- `:TutorList` menampilkan daftar tutorial.
-- `:TutorID1` sampai `:TutorID4` membuka tutorial dasar, editing, gerakan, dan Visual mode.
 - `:CopyPath` atau `:CP` menampilkan dan menyalin path serta nomor baris; bisa dipanggil untuk baris aktif atau rentang Visual.
-- `:Nvdash` membuka dashboard welcome dengan tabel terpisah untuk shortcut umum dan shortcut NvimTree. Dashboard tampil otomatis saat Neovim dibuka tanpa file.
+- `:Nvdash` membuka dashboard welcome dengan tiga kelompok shortcut acak. Dashboard tampil otomatis saat Neovim dibuka tanpa file.
 - `:ReloadUI` memuat ulang tema dan statusline saja. `Space rr` sengaja tidak dipetakan; untuk memuat ulang seluruh konfigurasi, tutup lalu buka kembali Neovim.
 
 ## Cara mengubah konfigurasi
