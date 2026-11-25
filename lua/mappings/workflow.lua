@@ -238,12 +238,14 @@ vim.api.nvim_create_autocmd("BufFilePost", {
   end,
 })
 
+-- Dari tab non-agent menuju agent pertama; dari tab agent berputar ke agent berikutnya.
 map("n", "<leader>aa", function()
-  for _, bufnr in ipairs(vim.t.bufs or {}) do
-    if is_agent(bufnr) then
-      vim.api.nvim_set_current_buf(bufnr)
-      return
-    end
+  local agents = vim.tbl_filter(is_agent, vim.t.bufs or {})
+  if #agents == 0 then
+    vim.notify("Belum ada buffer agent-*. Beri nama dengan :file agent-1", vim.log.levels.WARN)
+    return
   end
-  vim.notify("Belum ada buffer agent-*. Beri nama dengan :file agent-1", vim.log.levels.WARN)
-end, { desc = "Pindah ke tab agent pertama" })
+
+  local current = vim.fn.index(agents, vim.api.nvim_get_current_buf()) + 1
+  vim.api.nvim_set_current_buf(agents[current % #agents + 1])
+end, { desc = "Pindah ke tab agent, berputar antar agent" })
