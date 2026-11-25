@@ -211,3 +211,39 @@ map("n", "<leader>bo", function()
   route = route:gsub("^/_app", ""):gsub("^/_auth", ""):gsub("/+$", "")
   vim.ui.open("http://localhost:5173" .. (route == "" and "/" or route))
 end, { desc = "Buka route aplikasi lokal di browser" })
+
+-- Buffer terminal agent: beri nama dengan `:file agent-1`, tab "agent-*" selalu berurutan di paling kiri.
+local function is_agent(bufnr)
+  return vim.fs.basename(vim.api.nvim_buf_get_name(bufnr)):match "^agent%-" ~= nil
+end
+
+vim.api.nvim_create_autocmd("BufFilePost", {
+  group = vim.api.nvim_create_augroup("AgentTabsFirst", { clear = true }),
+  callback = function()
+    local agents, others = {}, {}
+    for _, bufnr in ipairs(vim.t.bufs or {}) do
+      table.insert(is_agent(bufnr) and agents or others, bufnr)
+    end
+    -- Angka dipadatkan agar agent-2 tampil sebelum agent-10.
+    local function key(bufnr)
+      return vim.api.nvim_buf_get_name(bufnr):gsub("%d+", function(n)
+        return ("%08d"):format(n)
+      end)
+    end
+    table.sort(agents, function(a, b)
+      return key(a) < key(b)
+    end)
+    vim.t.bufs = vim.list_extend(agents, others)
+    vim.cmd "redrawtabline"
+  end,
+})
+
+map("n", "<leader>aa", function()
+  for _, bufnr in ipairs(vim.t.bufs or {}) do
+    if is_agent(bufnr) then
+      vim.api.nvim_set_current_buf(bufnr)
+      return
+    end
+  end
+  vim.notify("Belum ada buffer agent-*. Beri nama dengan :file agent-1", vim.log.levels.WARN)
+end, { desc = "Pindah ke tab agent pertama" })

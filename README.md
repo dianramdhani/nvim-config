@@ -92,6 +92,7 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 | `Space mp` | Tampilkan/sembunyikan pratinjau Markdown di dalam Neovim. |
 | `Space md` | Tampilkan/sembunyikan pratinjau Markdown di browser. |
 | `Space bo` | Buka route aplikasi lokal terkait di browser. |
+| `Space aa` | Pindah ke tab agent pertama. Beri nama terminal dengan `:file agent-1`; tab `agent-*` otomatis berurutan di paling kiri. |
 | `Space th` | Buka pemilih tema NvChad. |
 | `:` | Buka command line Neovim. |
 | `;` / `,` | Ulangi pencarian `f`/`t`/`F`/`T` terakhir ke arah yang sama / berlawanan. |
