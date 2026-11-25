@@ -1,5 +1,18 @@
 return {
   {
+    "nvim-tree/nvim-tree.lua",
+    opts = function(_, opts)
+      local api = require "nvim-tree.api"
+      opts.on_attach = function(bufnr)
+        api.config.mappings.default_on_attach(bufnr)
+        vim.keymap.set("n", "d", api.fs.trash, { buffer = bufnr, desc = "Trash" })
+        vim.keymap.set("x", "d", api.fs.trash, { buffer = bufnr, desc = "Trash" })
+      end
+      return opts
+    end,
+  },
+
+  {
     "stevearc/conform.nvim",
     event = "BufWritePre", -- Format otomatis sebelum file disimpan.
     opts = require "configs.conform",
