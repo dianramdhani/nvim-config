@@ -1,7 +1,9 @@
 require("nvchad.configs.lspconfig").defaults()
 
 -- Server bahasa yang dipakai untuk diagnostik, autocomplete, dan navigasi kode.
-local servers = { "biome", "cssls", "html", "jsonls", "tailwindcss", "ts_ls" }
+-- "tsc" memakai `tsc --lsp` bawaan TypeScript 7+ dari node_modules proyek;
+-- proyek yang masih TypeScript <= 6 perlu "ts_ls" sebagai gantinya.
+local servers = { "biome", "cssls", "html", "jsonls", "tailwindcss", "tsc" }
 vim.lsp.enable(servers)
 
 vim.api.nvim_create_autocmd("LspAttach", {
