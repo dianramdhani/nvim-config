@@ -22,14 +22,14 @@ map("n", "<leader>ft", function()
 			preview_height = 0.67,
 		},
 		attach_mappings = function(_, map_picker)
-			-- Menyalin "path#Lbaris" dan teks TODO-nya, siap ditempel ke agen, lalu menutup daftar.
+			-- Menyalin "path#Lbaris" (format sama dengan <leader>cp), lalu menutup daftar.
 			local copy_todo = function(prompt_bufnr)
 				local entry = require("telescope.actions.state").get_selected_entry()
 				if not entry then
 					return
 				end
 				local file = vim.fs.relpath(root, vim.fn.fnamemodify(entry.filename, ":p")) or entry.filename
-				local text = string.format("%s#L%d\n%s", file, entry.lnum, vim.trim(entry.text))
+				local text = string.format("%s#L%d", file, entry.lnum)
 				vim.fn.setreg("+", text)
 				vim.fn.setreg('"', text)
 				vim.notify("Disalin: " .. file .. "#L" .. entry.lnum, vim.log.levels.INFO)
