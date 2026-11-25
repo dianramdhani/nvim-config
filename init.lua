@@ -31,7 +31,6 @@ dofile(vim.g.base46_cache .. "statusline")
 
 require "options"
 require "autocmds"
-require "commands"
 
 -- Keymap dimuat setelah startup agar modul NvChad siap.
 vim.schedule(function()
