@@ -17,7 +17,6 @@ map("n", "<leader>wm", function()
 
 	vim.t.nvim_window_focus_zoomed = not vim.t.nvim_window_focus_zoomed
 end, { desc = "Besarkan/pulihkan ukuran window" })
-map("n", ";", ":", { desc = "Buka command line" })
 map("i", "jk", "<Esc>", { desc = "Kembali ke Normal mode" })
 
 -- Fitur yang punya beberapa keymap dikelompokkan di file terpisah.
