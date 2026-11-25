@@ -159,6 +159,14 @@ vim.api.nvim_create_user_command("ReloadUI", reload_ui_config, {
   desc = "Muat ulang tema dan statusline",
 })
 
+vim.api.nvim_create_user_command("ReloadKeymaps", function()
+  for _, name in ipairs { "mappings", "mappings.git", "mappings.workflow" } do
+    package.loaded[name] = nil
+  end
+  require "mappings"
+  vim.notify("Keymap dimuat ulang", vim.log.levels.INFO)
+end, { desc = "Muat ulang semua keymap pribadi" })
+
 -- Pratinjau Markdown di Neovim atau browser.
 map("n", "<leader>mp", "<cmd>RenderMarkdown toggle<CR>", { desc = "Tampilkan/sembunyikan Markdown di Neovim" })
 map("n", "<leader>md", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Tampilkan/sembunyikan Markdown di browser" })

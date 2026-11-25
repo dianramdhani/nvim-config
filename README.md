@@ -104,7 +104,8 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 
 - `:CopyPath` atau `:CP` menampilkan dan menyalin path serta nomor baris; bisa dipanggil untuk baris aktif atau rentang Visual.
 - `:Nvdash` membuka dashboard welcome dengan tiga kelompok shortcut acak. Dashboard tampil otomatis saat Neovim dibuka tanpa file.
-- `:ReloadUI` memuat ulang tema dan statusline saja. `Space rr` sengaja tidak dipetakan; untuk memuat ulang seluruh konfigurasi, tutup lalu buka kembali Neovim.
+- `:ReloadKeymaps` memuat ulang semua keymap pribadi tanpa menutup Neovim.
+- `:ReloadUI` memuat ulang tema dan statusline saja. `Space rr` sengaja tidak dipetakan; perubahan plugin atau LSP tetap butuh tutup lalu buka kembali Neovim.
 
 ## Cara mengubah konfigurasi
 
