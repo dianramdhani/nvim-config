@@ -4,6 +4,7 @@ require "nvchad.mappings"
 local map = vim.keymap.set
 
 map("n", "<leader>th", "<cmd>Telescope themes<CR>", { desc = "Buka pemilih tema" })
+map("n", "<leader>ff", "<cmd>Telescope find_files hidden=true<CR>", { desc = "Cari file termasuk folder tersembunyi" })
 map("n", "<leader>tt", "<cmd>term<CR><cmd>startinsert<CR>", { desc = "Buka terminal di window aktif" })
 map("n", "<leader>sr", "<cmd>split | wincmd L<CR>", { desc = "Split right" })
 map("n", "<leader>wm", function()
