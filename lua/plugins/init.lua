@@ -163,4 +163,12 @@ return {
       require("configs.markdown_preview").setup()
     end,
   },
+
+  {
+    "folke/todo-comments.nvim",
+    event = { "BufReadPost", "BufNewFile" }, -- Sorotan warna aktif begitu file dibuka.
+    cmd = { "TodoTelescope", "TodoQuickFix", "TodoLocList" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {},
+  },
 }

@@ -47,6 +47,7 @@ Karena pemuatan pribadi terjadi setelah keymap NvChad, shortcut pribadi dapat me
 | `Space ff` | Cari file di project. |
 | `Space fw` | Cari teks di project. |
 | `Space fr` | Buka lagi pencarian Telescope terakhir (termasuk `gt`, `gw`, `ft`) lengkap dengan kata pencarian dan pilihannya. |
+| `Space ft` | Daftar komentar `TODO:`/`FIXME:` di project. Di dalam daftar, `Ctrl-y` (atau `Esc` lalu `Space cp`) menyalin path, nomor baris, dan teks TODO. |
 | `Space e` | Fokus ke panel file NvimTree. |
 | `Space tt` | Jalankan `:term` di window aktif. |
 | `Space sr` | Buat split, lalu pindahkan window baru ke sisi kanan; setara dengan `:sp` lalu `Ctrl-w L`. |
