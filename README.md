@@ -77,13 +77,11 @@ Lipatan dibuat otomatis dari struktur Tree-sitter. File dibuka dengan lipatan ta
 | Shortcut | Kegunaan |
 |---|---|
 | `Space gt` | Buka daftar perubahan Git di Telescope; Enter membuka file dan daftar tetap terbuka. |
-| `Space gT` | Tampilkan daftar file yang berubah di quickfix. |
 | `Space gd` | Bandingkan file dengan index Git (perubahan yang belum di-stage). |
 | `Space gD` | Bandingkan file dengan `HEAD`. |
 | `Space gp` | Pratinjau perubahan hunk di bawah kursor. |
 | `Space ga` | Stage seluruh isi folder tempat file aktif berada. Periksa folder yang ditampilkan sebelum melanjutkan workflow Git. |
 | `Space gw` | Pilih commit, lalu pilih file yang berubah untuk melihat diff di Telescope. |
-| `Space gW` | Pilih commit, lalu tampilkan file yang berubah di quickfix. |
 | `Space gb` | Pilih branch pembanding, lalu lihat file yang berubah sejak branch itu (`branch...HEAD`) beserta diff-nya di Telescope. |
 
 ### Alur kerja pribadi lainnya

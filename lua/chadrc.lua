@@ -230,8 +230,8 @@ local shortcut_groups = {
 	{
 		title = "Git",
 		rows = {
-			{ txt = sc("<leader>gt", "Status (Telescope)", "<leader>gT", "Status (quickfix)"), hl = "NvDashButtons", no_gap = true },
-			{ txt = sc("<leader>gw", "Commit diff (scope)", "<leader>gW", "Commit files (qf)"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>gt", "Status (Telescope)", "<leader>fr", "Resume last search"), hl = "NvDashButtons", no_gap = true },
+			{ txt = sc("<leader>gw", "Commit diff (scope)"), hl = "NvDashButtons", no_gap = true },
 			{ txt = sc("<leader>gb", "Branch diff (Telescope)", "<leader>gd", "Diff current file"), hl = "NvDashButtons", no_gap = true },
 		},
 	},

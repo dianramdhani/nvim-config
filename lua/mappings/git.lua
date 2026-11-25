@@ -75,36 +75,6 @@ map("n", "<leader>gt", function()
     end,
   }
 end, { desc = "Buka daftar perubahan Git di Telescope" })
-map("n", "<leader>gT", function()
-  local cwd = vim.fs.root(vim.fn.getcwd(), { ".git" }) or vim.fn.getcwd()
-  local result = vim
-    .system({
-      "git",
-      "-C",
-      cwd,
-      "status",
-      "--porcelain=v1",
-      "-z",
-      "--untracked-files=all",
-      "--no-renames",
-    }, { text = true })
-    :wait()
-  if result.code ~= 0 then
-    vim.notify(result.stderr ~= "" and result.stderr or "git status gagal", vim.log.levels.ERROR)
-    return
-  end
-
-  local items = {}
-  for entry in result.stdout:gmatch "([^%z]+)%z" do
-    local status, file = entry:match "^(..) (.*)$"
-    if status then
-      items[#items + 1] = { filename = vim.fs.joinpath(cwd, file), lnum = 1, text = status }
-    end
-  end
-
-  vim.fn.setqflist({}, " ", { title = "Git status", items = items })
-  vim.cmd "copen"
-end, { desc = "Tampilkan perubahan Git di quickfix" })
 local function choose_commit(on_select)
   local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
   local entries = {}
@@ -223,19 +193,6 @@ map("n", "<leader>gw", function()
       :find()
   end)
 end, { desc = "Pilih file dari commit untuk melihat diff di Telescope" })
-
-map("n", "<leader>gW", function()
-  choose_commit(function(commit, root, files)
-    local items = {}
-    for _, file in ipairs(files) do
-      if file ~= "" then
-        items[#items + 1] = { filename = vim.fs.joinpath(root, file), lnum = 1 }
-      end
-    end
-    vim.fn.setqflist({}, " ", { title = "File dalam " .. commit.msg, items = items })
-    vim.cmd "copen"
-  end)
-end, { desc = "Pilih file dari commit untuk quickfix" })
 
 map("n", "<leader>gb", function()
   local root = vim.fs.root(0, { ".git" }) or vim.fn.getcwd()
