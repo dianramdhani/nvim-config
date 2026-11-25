@@ -22,8 +22,8 @@ map("n", "<leader>ft", function()
 			preview_height = 0.67,
 		},
 		attach_mappings = function(_, map_picker)
-			-- Menyalin "path#Lbaris" dan teks TODO-nya, siap ditempel ke agen.
-			local copy_todo = function()
+			-- Menyalin "path#Lbaris" dan teks TODO-nya, siap ditempel ke agen, lalu menutup daftar.
+			local copy_todo = function(prompt_bufnr)
 				local entry = require("telescope.actions.state").get_selected_entry()
 				if not entry then
 					return
@@ -33,6 +33,7 @@ map("n", "<leader>ft", function()
 				vim.fn.setreg("+", text)
 				vim.fn.setreg('"', text)
 				vim.notify("Disalin: " .. file .. "#L" .. entry.lnum, vim.log.levels.INFO)
+				require("telescope.actions").close(prompt_bufnr)
 			end
 			-- Ctrl-y bekerja langsung saat mengetik; <leader>cp hanya di Normal mode (setelah Esc).
 			map_picker({ "i", "n" }, "<C-y>", copy_todo)
