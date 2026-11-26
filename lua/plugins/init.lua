@@ -3,15 +3,29 @@ return {
     "nvim-tree/nvim-tree.lua",
     opts = function(_, opts)
       local api = require "nvim-tree.api"
-      -- Layar sempit (HP): tree selebar layar dan tertutup setelah file dibuka.
+      -- Layar sempit (HP): tree jadi floating window yang menutupi seluruh layar
+      -- dan tertutup setelah file dibuka. Layar lebar tetap memakai split di samping.
       local function is_narrow()
         return vim.o.columns < 80
       end
-      local width = opts.view and opts.view.width or 30
-      opts.view = opts.view or {}
-      opts.view.width = function()
-        return is_narrow() and vim.o.columns or width
+      local function fullscreen()
+        return {
+          relative = "editor",
+          border = "none",
+          row = 0,
+          col = 0,
+          width = vim.o.columns,
+          height = vim.o.lines - vim.o.cmdheight - 1, -- sisakan statusline dan command line
+        }
       end
+      opts.view = opts.view or {}
+      opts.view.float = { enable = false, open_win_config = fullscreen }
+
+      -- nvim-tree membaca float.enable setiap kali window dibuat, jadi mode dipilih tepat sebelum tree dibuka.
+      -- Catatan: nvim-tree.config adalah modul internal, cek lagi bila nvim-tree di-update dan ini berhenti bekerja.
+      api.events.subscribe(api.events.Event.TreePreOpen, function()
+        require("nvim-tree.config").g.view.float.enable = is_narrow()
+      end)
 
       opts.on_attach = function(bufnr)
         api.config.mappings.default_on_attach(bufnr)
@@ -19,7 +33,25 @@ return {
         vim.keymap.set("x", "d", api.fs.trash, { buffer = bufnr, desc = "Trash" })
 
         local function open()
-          api.node.open.edit(nil, { quit_on_open = is_narrow() })
+          local narrow = is_narrow()
+          local node = api.tree.get_node_under_cursor()
+          api.node.open.edit(nil, { quit_on_open = narrow })
+          -- Folder hanya di-expand/collapse, tidak ada file baru yang perlu dirapikan.
+          if not narrow or not node or node.nodes then
+            return
+          end
+          -- Dari dashboard, nvim-tree membuka file di split baru; tutup dashboard agar file tampil penuh.
+          local function normal_wins()
+            return vim.tbl_filter(function(win)
+              return vim.api.nvim_win_get_config(win).relative == ""
+            end, vim.api.nvim_tabpage_list_wins(0))
+          end
+          for _, win in ipairs(normal_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.bo[buf].filetype == "nvdash" and #normal_wins() > 1 then
+              vim.api.nvim_win_close(win, false)
+            end
+          end
         end
         for _, key in ipairs { "<CR>", "o", "<2-LeftMouse>" } do
           vim.keymap.set("n", key, open, { buffer = bufnr, desc = "Open" })
@@ -30,7 +62,18 @@ return {
       vim.api.nvim_create_autocmd("VimResized", {
         group = vim.api.nvim_create_augroup("NvimTreeResponsive", { clear = true }),
         callback = function()
-          if api.tree.is_visible() then
+          if not api.tree.is_visible() then
+            return
+          end
+          local winid = api.tree.winid()
+          local is_float = vim.api.nvim_win_get_config(winid).relative ~= ""
+          if is_float ~= is_narrow() then
+            -- Berpindah antara HP dan layar lebar: buka ulang dengan mode yang sesuai.
+            api.tree.close()
+            api.tree.open()
+          elseif is_float then
+            vim.api.nvim_win_set_config(winid, fullscreen())
+          else
             api.tree.resize()
           end
         end,
