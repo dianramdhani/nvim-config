@@ -56,6 +56,35 @@ map("n", "<leader>wm", function()
 end, { desc = "Besarkan/pulihkan ukuran window" })
 map("i", "jk", "<Esc>", { desc = "Kembali ke Normal mode" })
 
+-- Termux hanya mengirim scroll vertikal, jadi swipe atas/bawah dialihkan untuk geser kiri/kanan.
+local hscroll = false
+local saved_virtualedit
+-- Geser window yang di-swipe, bukan window aktif.
+local function swipe(keys)
+	return function()
+		local win = vim.fn.getmousepos().winid
+		vim.api.nvim_win_call(win ~= 0 and win or 0, function()
+			vim.cmd("normal! " .. keys)
+		end)
+	end
+end
+map("n", "<leader>sh", function()
+	hscroll = not hscroll
+	if hscroll then
+		-- Tanpa ini, geseran berhenti di akhir baris tempat kursor berada.
+		saved_virtualedit = vim.o.virtualedit
+		vim.o.virtualedit = "all"
+		map("n", "<ScrollWheelDown>", swipe "6zh")
+		map("n", "<ScrollWheelUp>", swipe "6zl")
+		vim.notify "Swipe: mode horizontal"
+	else
+		vim.o.virtualedit = saved_virtualedit
+		vim.keymap.del("n", "<ScrollWheelDown>")
+		vim.keymap.del("n", "<ScrollWheelUp>")
+		vim.notify "Swipe: mode vertikal"
+	end
+end, { desc = "Toggle swipe horizontal" })
+
 -- Fitur yang punya beberapa keymap dikelompokkan di file terpisah.
 require "mappings.git"
 require "mappings.workflow"

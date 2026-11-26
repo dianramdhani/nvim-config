@@ -3,6 +3,8 @@ require "nvchad.options"
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.wrap = false
+vim.opt.sidescroll = 1 -- geser tampilan per kolom, lebih halus
+vim.opt.sidescrolloff = 5 -- sisakan 5 kolom di kiri/kanan kursor
 vim.opt.inccommand = "split"
 vim.opt.autoread = true
 
