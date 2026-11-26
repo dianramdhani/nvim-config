@@ -3,11 +3,38 @@ return {
     "nvim-tree/nvim-tree.lua",
     opts = function(_, opts)
       local api = require "nvim-tree.api"
+      -- Layar sempit (HP): tree selebar layar dan tertutup setelah file dibuka.
+      local function is_narrow()
+        return vim.o.columns < 80
+      end
+      local width = opts.view and opts.view.width or 30
+      opts.view = opts.view or {}
+      opts.view.width = function()
+        return is_narrow() and vim.o.columns or width
+      end
+
       opts.on_attach = function(bufnr)
         api.config.mappings.default_on_attach(bufnr)
         vim.keymap.set("n", "d", api.fs.trash, { buffer = bufnr, desc = "Trash" })
         vim.keymap.set("x", "d", api.fs.trash, { buffer = bufnr, desc = "Trash" })
+
+        local function open()
+          api.node.open.edit(nil, { quit_on_open = is_narrow() })
+        end
+        for _, key in ipairs { "<CR>", "o", "<2-LeftMouse>" } do
+          vim.keymap.set("n", key, open, { buffer = bufnr, desc = "Open" })
+        end
       end
+
+      -- Ikuti perubahan ukuran layar, misalnya HP diputar atau keyboard muncul.
+      vim.api.nvim_create_autocmd("VimResized", {
+        group = vim.api.nvim_create_augroup("NvimTreeResponsive", { clear = true }),
+        callback = function()
+          if api.tree.is_visible() then
+            api.tree.resize()
+          end
+        end,
+      })
       return opts
     end,
   },
